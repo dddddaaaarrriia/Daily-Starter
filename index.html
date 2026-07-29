@@ -3,776 +3,656 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pixel Focus - 10分钟极简专注</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入纯前端二维码生成库 (用于口令扫码同步) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <title>Pixel Focus - 像素专注沙盒</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    :root {
+      --bg-color: #1a1a24;
+      --card-bg: #262636;
+      --accent-color: #ff0055;
+      --text-color: #e0e0e0;
+      --text-dim: #8888a0;
+      --border-color: #383850;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #090d16;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    /* 淡入柔和动画 */
-    @keyframes smooth-fade {
-      0% { opacity: 0; transform: scale(0.85); }
-      100% { opacity: 1; transform: scale(1); }
+    header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px dashed var(--border-color);
     }
 
-    .animate-smooth {
-      animation: smooth-fade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    h1 { font-size: 1.5rem; letter-spacing: 2px; color: #fff; text-shadow: 2px 2px var(--accent-color); }
+
+    .header-btns { display: flex; gap: 10px; }
+
+    .btn {
+      background: var(--card-bg);
+      color: var(--text-color);
+      border: 2px solid var(--border-color);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
     }
 
-    .brick-gray {
-      background-color: #334155;
+    .btn:hover { border-color: var(--accent-color); color: #fff; transform: translateY(-2px); }
+    .btn-primary { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+    .btn-danger { background: #d32f2f; border-color: #d32f2f; color: #fff; }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
-    /* 细微暗色滚动条 */
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    @media (max-width: 650px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      border-left: 4px solid var(--accent-color);
+      padding-left: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 计时器区域 */
+    .timer-display {
+      font-size: 3.5rem;
+      text-align: center;
+      font-weight: bold;
+      letter-spacing: 3px;
+      color: #fff;
+      margin: 10px 0;
+      text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+    }
+
+    /* 模块/任务选择区域 */
+    .task-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+      border: 2px solid transparent;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .task-item:hover { border-color: var(--border-color); }
+    .task-item.active { border-color: var(--accent-color); background: rgba(255, 0, 85, 0.1); }
+
+    .task-info { display: flex; align-items: center; gap: 10px; }
+    .task-color-dot { width: 14px; height: 14px; border-radius: 2px; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+    .icon-btn:hover { color: #fff; opacity: 1; }
+
+    /* 像素格子图示 */
+    .sandbox-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      min-height: 180px;
+    }
+
+    .pixel-cell {
+      aspect-ratio: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      position: relative;
+    }
+
+    .pixel-cell.filled {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 弹窗样式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .modal {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 0.85rem; color: var(--text-dim); }
+    .form-group input {
+      background: #1a1a24;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+      color: #fff;
+    }
+
+    /* 扩展预设调色盘 */
+    .color-presets {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-top: 5px;
+    }
+    .color-preset-btn {
+      height: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: transform 0.1s;
+    }
+    .color-preset-btn:hover { transform: scale(1.1); }
+
+    .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 5px 0; border-bottom: 1px dashed var(--border-color); }
   </style>
 </head>
-<body class="text-slate-200 min-h-screen p-4 sm:p-8 flex flex-col justify-between antialiased selection:bg-slate-800">
+<body>
 
-  <!-- 顶部 Header -->
-  <header class="flex justify-between items-center pb-4 border-b border-slate-800/80 max-w-4xl mx-auto w-full">
-    <div class="flex items-center gap-2.5">
-      <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></div>
-      <h1 class="text-sm font-bold tracking-tight text-slate-100">Pixel Focus</h1>
-    </div>
-    <div class="flex items-center gap-2 sm:gap-3">
-      <div id="status-text" class="text-xs font-medium text-slate-500 hidden sm:block">准备状态：等待开始</div>
-      <!-- 🔄 免登录口令同步 -->
-      <button onclick="openSyncModal()" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 text-xs font-medium transition-all border border-slate-700/50 flex items-center gap-1">
-        🔄 同步
-      </button>
-      <!-- 📊 周统计入口 -->
-      <button onclick="openStatsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 text-xs font-medium transition-all border border-slate-700/50 flex items-center gap-1">
-        📊 周统计
-      </button>
+  <header>
+    <h1>像素专注沙盒</h1>
+    <div class="header-btns">
+      <button class="btn" onclick="openModal('statsModal')">📊 统计</button>
+      <button class="btn" onclick="openModal('syncModal')">🔄 同步</button>
     </div>
   </header>
 
-  <!-- 中间主要布局：纯粹专注 Timer + 右侧彩色池 -->
-  <div class="flex-grow my-8 flex flex-col md:flex-row items-center justify-center gap-8 max-w-4xl mx-auto w-full">
-    
-    <!-- 中间：深色发光 Timer 主体 -->
-    <main class="flex flex-col items-center justify-center gap-7">
-      
-      <!-- 巨大的 10 分钟时间沙盒卡片 -->
-      <div class="relative p-8 sm:p-10 bg-slate-900/80 border border-slate-800/80 rounded-3xl shadow-2xl backdrop-blur-md flex flex-col items-center">
-        <div class="flex justify-between items-center w-full mb-6">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">10 Mins Sandbox</span>
-          <span id="timer-countdown" class="text-sm text-emerald-400 font-bold font-mono tracking-wider shadow-[0_0_12px_rgba(52,211,153,0.2)]">10:00</span>
-        </div>
-        
-        <!-- 10 个胶囊圆角像素格 -->
-        <div id="sandbox-grid" class="grid grid-cols-5 gap-3.5 my-1">
-          <!-- JS 动态生成 -->
-        </div>
+  <div class="container">
+    <!-- 左侧：计时与模块 -->
+    <div class="card">
+      <div class="card-title">
+        <span>专注控制台</span>
+        <button class="btn" style="padding: 2px 6px; font-size: 0.8rem;" onclick="openTaskModal()">+ 新增模块</button>
       </div>
 
-      <!-- 深色分段控制器面板 -->
-      <div class="flex flex-col sm:flex-row items-center gap-3 bg-slate-900/80 p-2 border border-slate-800/80 rounded-2xl shadow-lg w-full sm:w-auto">
-        
-        <!-- 动态分类控制器 -->
-        <div id="tag-container" class="flex flex-wrap gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800/50 max-w-xs sm:max-w-md">
-          <!-- JS 动态渲染按钮 -->
-        </div>
+      <div class="timer-display" id="timerDisplay">10:00</div>
 
-        <!-- 开启专注按键 -->
-        <button id="start-btn" onclick="toggleFocus()" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tracking-wide hover:bg-emerald-400 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0">
-          开启 10 分钟专注
-        </button>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-primary" id="startBtn" style="flex: 2;" onclick="toggleTimer()">开始专注 (10m)</button>
+        <button class="btn btn-danger" id="resetBtn" style="flex: 1;" onclick="resetTimer()">中断</button>
       </div>
 
-    </main>
-
-    <!-- 右侧：窄彩色池 (w-40 / 160px) -->
-    <section class="w-full sm:w-40 bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl shadow-lg backdrop-blur-sm shrink-0 h-72 flex flex-col justify-between">
-      <div>
-        <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800/60">
-          <span class="text-xs font-semibold text-slate-400">今日积蓄</span>
-          <span id="today-count" class="text-xs text-sky-400 font-bold">0</span>
-        </div>
-        
-        <!-- 向上堆叠积木池 -->
-        <div class="h-48 overflow-y-auto flex flex-col-reverse bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">
-          <div id="today-wall-grid" class="flex flex-wrap gap-1.5 items-end justify-start">
-            <div id="empty-tip" class="text-[10px] text-slate-600 italic">尚无积木...</div>
-          </div>
-        </div>
+      <div style="font-size: 0.85rem; color: var(--text-dim); margin-top: 5px;">选择当前模块：</div>
+      <div class="task-selector" id="taskList">
+        <!-- 任务列表动态渲染 -->
       </div>
-      
-      <div class="text-[10px] text-slate-600 text-right font-medium">
-        ▲ 向上堆叠
+    </div>
+
+    <!-- 右侧：今日沙盒 -->
+    <div class="card">
+      <div class="card-title">
+        <span>今日积蓄沙盒</span>
+        <span id="blockCount" style="font-size: 0.85rem; color: var(--text-dim);">0 块</span>
       </div>
-    </section>
-
-  </div>
-
-  <!-- Footer -->
-  <footer class="pt-3 border-t border-slate-800/60 text-center text-[11px] text-slate-600 font-medium max-w-4xl mx-auto w-full">
-    把平淡无奇的时间，铸造成彩色的丰盈积蓄
-  </footer>
-
-  <!-- -------------------- 弹窗 1：任务管理与添加 Modal -------------------- -->
-  <div id="add-task-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full max-w-sm shadow-2xl flex flex-col gap-4 animate-smooth max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <h3 class="text-xs font-bold text-slate-200">任务分类管理</h3>
-        <button onclick="closeAddTaskModal()" class="text-slate-500 hover:text-slate-300 text-xs">✕</button>
-      </div>
-      
-      <!-- 新增任务表单 -->
-      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col gap-3">
-        <span class="text-[11px] font-semibold text-slate-400 block">➕ 添加新任务</span>
-        <div>
-          <input id="new-task-name" type="text" placeholder="任务名称 (如: 🏃 健身)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <div>
-          <label class="text-[10px] text-slate-500 block mb-1">选择代表颜色</label>
-          <div id="color-picker-list" class="flex gap-2 items-center"></div>
-        </div>
-
-        <button onclick="saveNewTask()" class="w-full py-1.5 rounded-lg text-xs bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 transition-all">确定添加</button>
-      </div>
-
-      <!-- 已有自定义任务列表 -->
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[11px] font-semibold text-slate-400 block mb-1">📋 已有自定义任务</span>
-        <div id="custom-task-manage-list" class="flex flex-col gap-1.5 max-h-36 overflow-y-auto"></div>
-      </div>
-
-      <div class="flex justify-end pt-1">
-        <button onclick="closeAddTaskModal()" class="px-3 py-1 rounded-lg text-xs text-slate-400 hover:bg-slate-800">完成关闭</button>
+      <div class="sandbox-grid" id="sandboxGrid">
+        <!-- 像素块动态渲染 -->
       </div>
     </div>
   </div>
 
-  <!-- -------------------- 弹窗 2：周饼图统计 Modal -------------------- -->
-  <div id="stats-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl flex flex-col gap-4 animate-smooth">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-        <div>
-          <h3 class="text-sm font-bold text-slate-100">近 7 天积木积累统计</h3>
-          <p class="text-[10px] text-slate-500 mt-0.5">每块积木代表 1 分钟专注时间</p>
-        </div>
-        <button onclick="closeStatsModal()" class="text-slate-500 hover:text-slate-300 text-xs">✕</button>
+  <!-- 模态框：新增/编辑模块 -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <h3 id="taskModalTitle">新增/编辑模块</h3>
+      <input type="hidden" id="editTaskId">
+      <div class="form-group">
+        <label>模块名称</label>
+        <input type="text" id="taskNameInput" placeholder="例如：看书、写代码、健身...">
       </div>
-
-      <!-- 原生 Canvas 环形图 -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
-        <div class="relative w-36 h-36 flex items-center justify-center shrink-0">
-          <canvas id="weekly-pie-canvas" width="144" height="144"></canvas>
-          <div class="absolute flex flex-col items-center justify-center pointer-events-none">
-            <span id="pie-total-count" class="text-base font-bold text-slate-100">0</span>
-            <span class="text-[9px] text-slate-500 uppercase">Total Min</span>
-          </div>
-        </div>
-
-        <div id="pie-legend" class="flex flex-col gap-1.5 w-full max-h-40 overflow-y-auto text-xs"></div>
+      <div class="form-group">
+        <label>图标 (Emoji)</label>
+        <input type="text" id="taskIconInput" placeholder="📖" maxlength="2">
       </div>
-
-      <!-- 底部文件备份/恢复工具 -->
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-        <div class="flex gap-2">
-          <button onclick="exportDataJSON()" class="text-[10px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">导出 JSON</button>
-          <button onclick="triggerImportJSON()" class="text-[10px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">导入 JSON</button>
-          <input type="file" id="import-json-input" class="hidden" accept=".json" onchange="importDataJSON(event)">
+      <div class="form-group">
+        <label>积木颜色</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
+          <input type="color" id="taskColorInput" value="#ff0055" style="width: 50px; height: 35px; cursor: pointer;">
+          <span style="font-size: 0.8rem; color: var(--text-dim);">或选择快捷预设色：</span>
         </div>
-        <button onclick="closeStatsModal()" class="px-4 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-300 hover:bg-slate-700">关闭</button>
+        <!-- 增加到 10 种高饱和像素配色 -->
+        <div class="color-presets">
+          <button class="color-preset-btn" style="background:#ff0055" onclick="setPresetColor('#ff0055')"></button>
+          <button class="color-preset-btn" style="background:#ff5500" onclick="setPresetColor('#ff5500')"></button>
+          <button class="color-preset-btn" style="background:#ffbb00" onclick="setPresetColor('#ffbb00')"></button>
+          <button class="color-preset-btn" style="background:#00ff88" onclick="setPresetColor('#00ff88')"></button>
+          <button class="color-preset-btn" style="background:#00ccff" onclick="setPresetColor('#00ccff')"></button>
+          <button class="color-preset-btn" style="background:#3366ff" onclick="setPresetColor('#3366ff')"></button>
+          <button class="color-preset-btn" style="background:#aa00ff" onclick="setPresetColor('#aa00ff')"></button>
+          <button class="color-preset-btn" style="background:#ff00aa" onclick="setPresetColor('#ff00aa')"></button>
+          <button class="color-preset-btn" style="background:#888888" onclick="setPresetColor('#888888')"></button>
+          <button class="color-preset-btn" style="background:#ffffff" onclick="setPresetColor('#ffffff')"></button>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button class="btn" onclick="closeModal('taskModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveTask()">保存</button>
       </div>
     </div>
   </div>
 
-  <!-- -------------------- 弹窗 3：6位口令/二维码 免登录同步 Modal -------------------- -->
-  <div id="sync-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-4 animate-smooth">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <h3 class="text-xs font-bold text-slate-100">跨设备极轻量同步</h3>
-        <button onclick="closeSyncModal()" class="text-slate-500 hover:text-slate-300 text-xs">✕</button>
+  <!-- 模态框：周统计 -->
+  <div class="modal-overlay" id="statsModal">
+    <div class="modal">
+      <h3>📊 专注统计</h3>
+      <div id="statsContent">
+        <!-- 统计内容动态生成 -->
       </div>
-
-      <!-- 选项 1：生成口令/二维码 (发送端) -->
-      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col items-center gap-2">
-        <span class="text-[11px] font-semibold text-slate-400 w-full text-left">📱 1. 从当前设备上传数据</span>
-        <button onclick="generateSyncCode()" id="gen-code-btn" class="w-full py-1.5 rounded-lg text-xs bg-sky-500/20 text-sky-400 font-medium hover:bg-sky-500/30 border border-sky-500/30">
-          生成 6 位同步口令 / 二维码
-        </button>
-        
-        <div id="sync-display-box" class="hidden flex-col items-center gap-2 mt-1">
-          <div id="sync-code-text" class="text-xl font-mono font-bold text-emerald-400 tracking-widest bg-slate-900 px-4 py-1.5 rounded-lg border border-slate-800">------</div>
-          <canvas id="sync-qrcode-canvas" class="rounded-lg border border-slate-800 p-1 bg-white"></canvas>
-          <span class="text-[9px] text-slate-500">用手机扫码或输入上方 6 位口令拉取</span>
-        </div>
-      </div>
-
-      <!-- 选项 2：输入口令同步 (接收端) -->
-      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col gap-2">
-        <span class="text-[11px] font-semibold text-slate-400 block">📥 2. 从其他设备拉取数据</span>
-        <div class="flex gap-2">
-          <input id="input-sync-code" type="text" placeholder="输入 6 位数字口令" maxlength="6" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1 text-xs text-slate-100 font-mono tracking-wider focus:outline-none focus:border-sky-500">
-          <button onclick="pullDataByCode()" class="px-4 py-1 rounded-lg text-xs bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 shrink-0">同步</button>
-        </div>
-      </div>
-
-      <div class="text-right pt-1">
-        <button onclick="closeSyncModal()" class="px-3 py-1 rounded-lg text-xs text-slate-400 hover:bg-slate-800">关闭</button>
+      <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+        <button class="btn" onclick="exportData()">导出 JSON</button>
+        <button class="btn" onclick="closeModal('statsModal')">关闭</button>
       </div>
     </div>
   </div>
 
+  <!-- 模态框：数据同步 -->
+  <div class="modal-overlay" id="syncModal">
+    <div class="modal">
+      <h3>🔄 数据同步与备份</h3>
+      <p style="font-size: 0.85rem; color: var(--text-dim);">可通过 6 位口令跨设备共享你的打卡数据。</p>
+      <button class="btn btn-primary" onclick="generateSyncCode()">生成同步口令</button>
+      <div id="syncCodeDisplay" style="text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--accent-color); min-height: 25px;"></div>
+      <hr style="border: 0; border-top: 1px dashed var(--border-color);">
+      <div class="form-group">
+        <label>使用口令恢复/合并数据：</label>
+        <input type="text" id="importCodeInput" placeholder="输入 6 位口令" style="text-transform: uppercase;">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn" onclick="closeModal('syncModal')">取消</button>
+        <button class="btn btn-primary" onclick="loadFromSyncCode()">恢复同步</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- 核心逻辑 -->
   <script>
-    // --- 参数配置 ---
-    const DEMO_MODE = false; // 💡 测试开关：true 为 1秒/格，false 为 60秒/格
-    const DEFAULT_TITLE = "Pixel Focus - 10分钟极简专注";
-    
-    const TOTAL_BLOCKS = 10;
-    const BLOCK_SECONDS = DEMO_MODE ? 1 : 60;
-    const TOTAL_SESSION_SECONDS = TOTAL_BLOCKS * BLOCK_SECONDS;
-
-    // 默认预设任务
+    // --- 默认模块配置 ---
     const DEFAULT_TASKS = [
-      { id: 'coding', name: '💻 Coding', color: '#38bdf8', isDefault: true },
-      { id: 'reading', name: '📖 读写', color: '#fbbf24', isDefault: true },
-      { id: 'creation', name: '🎨 创作', color: '#f472b6', isDefault: true },
-      { id: 'learning', name: '📚 学习', color: '#34d399', isDefault: true }
+      { id: 't1', name: '看书/学习', icon: '📖', color: '#ff0055' },
+      { id: 't2', name: '写代码/工作', icon: '💻', color: '#00ccff' },
+      { id: 't3', name: '运动/健身', icon: '🏋️', color: '#00ff88' },
+      { id: 't4', name: '冥想/休息', icon: '🧘', color: '#ffbb00' }
     ];
 
-    const MORANDI_COLORS = ['#38bdf8', '#fbbf24', '#f472b6', '#34d399', '#a78bfa', '#fb923c'];
+    // --- 应用状态 ---
+    let tasks = JSON.parse(localStorage.getItem('pf_tasks')) || DEFAULT_TASKS;
+    let history = JSON.parse(localStorage.getItem('pf_history')) || [];
+    let currentTaskId = tasks[0] ? tasks[0].id : null;
 
-    let tasks = [];
-    let selectedColor = MORANDI_COLORS[0];
-    let currentTag = 'coding';
-    let isFocusing = false;
     let timer = null;
-    let startTime = null;
+    let timeLeft = 10 * 60; // 10 分钟倒计时
+    let isRunning = false;
 
-    function getTodayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    // --- 初始化 ---
+    function init() {
+      renderTasks();
+      renderSandbox();
+      updateTimerDisplay();
     }
 
-    // --- 数据持久化管理 ---
-    function loadTasks() {
-      const saved = localStorage.getItem('pixel_focus_tasks');
-      if (saved) {
-        tasks = JSON.parse(saved);
-      } else {
-        tasks = [...DEFAULT_TASKS];
-        saveTasks();
+    // --- 模块/任务管理功能 ---
+    function renderTasks() {
+      const listEl = document.getElementById('taskList');
+      listEl.innerHTML = '';
+
+      if (tasks.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; color:var(--text-dim); padding:10px;">暂无模块，请点击右上角新增</div>`;
+        return;
       }
-    }
 
-    function saveTasks() {
-      localStorage.setItem('pixel_focus_tasks', JSON.stringify(tasks));
-    }
-
-    function getHistoryData() {
-      return JSON.parse(localStorage.getItem('pixel_focus_history_v2') || '{}');
-    }
-
-    function saveHistoryData(data) {
-      localStorage.setItem('pixel_focus_history_v2', JSON.stringify(data));
-    }
-
-    function loadTodayData() {
-      return getHistoryData()[getTodayKey()] || [];
-    }
-
-    function recordTodayBricks(tagIdCountMap) {
-      const todayKey = getTodayKey();
-      const history = getHistoryData();
-      if (!history[todayKey]) history[todayKey] = [];
-      
-      for (let tagId in tagIdCountMap) {
-        for (let i = 0; i < tagIdCountMap[tagId]; i++) {
-          history[todayKey].push(tagId);
-        }
+      if (!tasks.find(t => t.id === currentTaskId)) {
+        currentTaskId = tasks[0].id;
       }
-      saveHistoryData(history);
-      renderTodayBricks();
-    }
-
-    // --- 界面渲染 ---
-    function renderTaskButtons() {
-      const container = document.getElementById('tag-container');
-      container.innerHTML = '';
 
       tasks.forEach(task => {
-        const btn = document.createElement('button');
-        btn.onclick = () => selectTag(task.id);
-        btn.id = `btn-${task.id}`;
-        
-        const isSelected = task.id === currentTag;
-        btn.className = `px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border flex items-center gap-1.5 shrink-0 ${
-          isSelected 
-            ? 'bg-slate-800 font-semibold shadow-sm border-slate-700/80' 
-            : 'text-slate-400 hover:text-slate-200 border-transparent'
-        }`;
-        
-        if (isSelected) btn.style.color = task.color;
-
-        btn.innerHTML = `<span class="w-2 h-2 rounded-full" style="background-color: ${task.color}"></span> ${task.name}`;
-        container.appendChild(btn);
-      });
-
-      const addBtn = document.createElement('button');
-      addBtn.onclick = openAddTaskModal;
-      addBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-100 bg-slate-900 hover:bg-slate-800 transition-all border border-slate-800 shrink-0';
-      addBtn.textContent = '+';
-      container.appendChild(addBtn);
-    }
-
-    function selectTag(tagId) {
-      if (isFocusing) return;
-      currentTag = tagId;
-      renderTaskButtons();
-    }
-
-    function initSandbox() {
-      const grid = document.getElementById('sandbox-grid');
-      grid.innerHTML = '';
-      for (let i = 0; i < TOTAL_BLOCKS; i++) {
-        const box = document.createElement('div');
-        box.className = 'w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-center p-1 transition-all duration-300';
-        box.id = `block-${i}`;
-        grid.appendChild(box);
-      }
-      updateCountdownDisplay(TOTAL_SESSION_SECONDS);
-    }
-
-    function updateCountdownDisplay(remainingSecs) {
-      const mins = Math.floor(remainingSecs / 60).toString().padStart(2, '0');
-      const secs = (remainingSecs % 60).toString().padStart(2, '0');
-      const timeStr = `${mins}:${secs}`;
-      
-      document.getElementById('timer-countdown').textContent = timeStr;
-
-      // 💡 优化点：同步更新浏览器 Tab 标题
-      if (isFocusing) {
-        const currentTaskObj = tasks.find(t => t.id === currentTag);
-        const taskName = currentTaskObj ? currentTaskObj.name : '';
-        document.title = `(${timeStr}) ${taskName} | Pixel Focus`;
-      } else {
-        document.title = DEFAULT_TITLE;
-      }
-    }
-
-    function toggleFocus() {
-      const startBtn = document.getElementById('start-btn');
-      const statusText = document.getElementById('status-text');
-
-      if (!isFocusing) {
-        isFocusing = true;
-        startTime = Date.now();
-        initSandbox();
-        
-        startBtn.textContent = '中断专注';
-        startBtn.className = 'w-full sm:w-auto px-5 py-2 rounded-xl bg-rose-500 text-white font-bold text-xs tracking-wide hover:bg-rose-600 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(244,63,94,0.3)] shrink-0';
-        statusText.textContent = '10 分钟专注进行中...';
-        statusText.className = 'text-xs font-medium text-amber-400 animate-pulse hidden sm:block';
-
-        timer = setInterval(() => {
-          const elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
-          const remainingSecs = Math.max(0, TOTAL_SESSION_SECONDS - elapsedSecs);
-          
-          updateCountdownDisplay(remainingSecs);
-
-          const filledBlocks = Math.floor(elapsedSecs / BLOCK_SECONDS);
-          
-          for (let i = 0; i < filledBlocks && i < TOTAL_BLOCKS; i++) {
-            const block = document.getElementById(`block-${i}`);
-            if (block && !block.hasChildNodes()) {
-              const pixel = document.createElement('div');
-              pixel.className = 'w-full h-full rounded-lg brick-gray animate-smooth';
-              block.appendChild(pixel);
-            }
-          }
-
-          if (elapsedSecs >= TOTAL_SESSION_SECONDS) {
-            completeSession();
-          }
-        }, 500);
-
-      } else {
-        clearInterval(timer);
-        isFocusing = false;
-        document.title = DEFAULT_TITLE;
-        initSandbox();
-        startBtn.textContent = '开启 10 分钟专注';
-        startBtn.className = 'w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tracking-wide hover:bg-emerald-400 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0';
-        statusText.textContent = '准备状态：已中断';
-        statusText.className = 'text-xs font-medium text-slate-500 hidden sm:block';
-      }
-    }
-
-    function completeSession() {
-      clearInterval(timer);
-      isFocusing = false;
-      document.title = DEFAULT_TITLE;
-      
-      const statusText = document.getElementById('status-text');
-      const startBtn = document.getElementById('start-btn');
-      
-      statusText.textContent = '10 分钟专注成功！已存入宝石积蓄';
-      statusText.className = 'text-xs font-semibold text-emerald-400 hidden sm:block';
-
-      recordTodayBricks({ [currentTag]: TOTAL_BLOCKS });
-
-      let i = 0;
-      const awakenInterval = setInterval(() => {
-        if (i < TOTAL_BLOCKS) {
-          const sandboxBlock = document.getElementById(`block-${i}`);
-          if (sandboxBlock) sandboxBlock.innerHTML = '';
-          i++;
-        } else {
-          clearInterval(awakenInterval);
-          startBtn.textContent = '开启下一轮';
-          startBtn.className = 'w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tracking-wide hover:bg-emerald-400 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0';
-          statusText.textContent = '准备状态：就绪';
-          statusText.className = 'text-xs font-medium text-slate-500 hidden sm:block';
-        }
-      }, 30);
-    }
-
-    function renderTodayBricks() {
-      const bricks = loadTodayData();
-      const wallGrid = document.getElementById('today-wall-grid');
-      const countLabel = document.getElementById('today-count');
-      
-      countLabel.textContent = bricks.length;
-      wallGrid.innerHTML = '';
-
-      if (bricks.length === 0) {
-        wallGrid.innerHTML = '<div id="empty-tip" class="text-[10px] text-slate-600 italic">尚无积木...</div>';
-        return;
-      }
-
-      const taskMap = Object.fromEntries(tasks.map(t => [t.id, t.color]));
-
-      bricks.forEach((tagId) => {
-        const brick = document.createElement('div');
-        const color = taskMap[tagId] || '#38bdf8';
-        brick.className = 'w-3.5 h-3.5 rounded-sm animate-smooth flex-shrink-0';
-        brick.style.backgroundColor = color;
-        brick.style.boxShadow = `0 0 6px ${color}90`;
-        wallGrid.appendChild(brick);
-      });
-    }
-
-    // --- 自定义任务 Modal 逻辑 ---
-    function openAddTaskModal() {
-      if (isFocusing) return;
-      document.getElementById('add-task-modal').classList.remove('hidden');
-      renderColorPicker();
-      renderCustomTaskManageList();
-    }
-
-    function closeAddTaskModal() {
-      document.getElementById('add-task-modal').classList.add('hidden');
-      document.getElementById('new-task-name').value = '';
-    }
-
-    function renderColorPicker() {
-      const picker = document.getElementById('color-picker-list');
-      picker.innerHTML = '';
-      MORANDI_COLORS.forEach(color => {
-        const dot = document.createElement('button');
-        dot.className = `w-5 h-5 rounded-full transition-all border-2 ${selectedColor === color ? 'border-white scale-110' : 'border-transparent opacity-70 hover:opacity-100'}`;
-        dot.style.backgroundColor = color;
-        dot.onclick = () => {
-          selectedColor = color;
-          renderColorPicker();
-        };
-        picker.appendChild(dot);
-      });
-    }
-
-    function saveNewTask() {
-      const nameInput = document.getElementById('new-task-name');
-      const name = nameInput.value.trim();
-      if (!name) return;
-
-      const newId = 'custom_' + Date.now();
-      tasks.push({ id: newId, name: name, color: selectedColor, isDefault: false });
-      saveTasks();
-      currentTag = newId;
-      renderTaskButtons();
-      renderCustomTaskManageList();
-      nameInput.value = '';
-    }
-
-    function renderCustomTaskManageList() {
-      const listContainer = document.getElementById('custom-task-manage-list');
-      listContainer.innerHTML = '';
-
-      const customTasks = tasks.filter(t => !t.isDefault);
-
-      if (customTasks.length === 0) {
-        listContainer.innerHTML = '<div class="text-[10px] text-slate-600 italic py-1">暂无自定义任务</div>';
-        return;
-      }
-
-      customTasks.forEach(task => {
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800/80';
+        item.className = `task-item ${task.id === currentTaskId ? 'active' : ''}`;
+        item.onclick = () => selectTask(task.id);
+
         item.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${task.color}"></span>
-            <span class="text-xs text-slate-200 font-medium">${task.name}</span>
+          <div class="task-info">
+            <span class="task-color-dot" style="background:${task.color}"></span>
+            <span>${task.icon} ${task.name}</span>
           </div>
-          <button onclick="deleteTask('${task.id}')" class="text-slate-500 hover:text-rose-400 text-xs px-1.5 py-0.5 rounded transition-all hover:bg-slate-900">
-            🗑️
-          </button>
+          <div>
+            <button class="icon-btn" title="编辑" onclick="event.stopPropagation(); openTaskModal('${task.id}')">✏️</button>
+          </div>
         `;
-        listContainer.appendChild(item);
+        listEl.appendChild(item);
       });
+
+      localStorage.setItem('pf_tasks', JSON.stringify(tasks));
     }
 
-    function deleteTask(taskId) {
-      tasks = tasks.filter(t => t.id !== taskId);
-      saveTasks();
-      if (currentTag === taskId) currentTag = tasks[0] ? tasks[0].id : 'coding';
-      renderTaskButtons();
-      renderCustomTaskManageList();
-      renderTodayBricks();
+    function selectTask(id) {
+      currentTaskId = id;
+      renderTasks();
     }
 
-    // --- 周统计 Canvas 逻辑 & JSON 数据备份/恢复 ---
-    function openStatsModal() {
-      document.getElementById('stats-modal').classList.remove('hidden');
-      renderWeeklyChart();
-    }
+    function openTaskModal(taskId = null) {
+      const titleEl = document.getElementById('taskModalTitle');
+      const editIdEl = document.getElementById('editTaskId');
+      const nameIn = document.getElementById('taskNameInput');
+      const iconIn = document.getElementById('taskIconInput');
+      const colorIn = document.getElementById('taskColorInput');
 
-    function closeStatsModal() {
-      document.getElementById('stats-modal').classList.add('hidden');
-    }
-
-    function getPast7DaysKeys() {
-      const keys = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+      if (taskId) {
+        // 编辑模式
+        const task = tasks.find(t => t.id === taskId);
+        titleEl.textContent = '编辑模块';
+        editIdEl.value = task.id;
+        nameIn.value = task.name;
+        iconIn.value = task.icon;
+        colorIn.value = task.color;
+      } else {
+        // 新增模式
+        titleEl.textContent = '新增专注模块';
+        editIdEl.value = '';
+        nameIn.value = '';
+        iconIn.value = '🎯';
+        colorIn.value = '#00ccff';
       }
-      return keys;
+
+      openModal('taskModal');
     }
 
-    function renderWeeklyChart() {
-      const history = getHistoryData();
-      const past7Days = getPast7DaysKeys();
-      const countsMap = {};
-      let totalCount = 0;
+    function setPresetColor(hex) {
+      document.getElementById('taskColorInput').value = hex;
+    }
 
-      past7Days.forEach(dateKey => {
-        (history[dateKey] || []).forEach(tagId => {
-          countsMap[tagId] = (countsMap[tagId] || 0) + 1;
-          totalCount++;
-        });
-      });
+    function saveTask() {
+      const id = document.getElementById('editTaskId').value;
+      const name = document.getElementById('taskNameInput').value.trim();
+      const icon = document.getElementById('taskIconInput').value.trim() || '📌';
+      const color = document.getElementById('taskColorInput').value;
 
-      document.getElementById('pie-total-count').textContent = totalCount;
-      const canvas = document.getElementById('weekly-pie-canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const legendBox = document.getElementById('pie-legend');
-      legendBox.innerHTML = '';
-
-      if (totalCount === 0) {
-        ctx.beginPath();
-        ctx.arc(72, 72, 56, 0, Math.PI * 2);
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 14;
-        ctx.stroke();
-        legendBox.innerHTML = '<div class="text-slate-600 italic">近 7 天暂无积累积木</div>';
+      if (!name) {
+        alert('请输入模块名称！');
         return;
       }
 
-      const taskMap = Object.fromEntries(tasks.map(t => [t.id, t]));
-      let startAngle = -Math.PI / 2;
+      if (id) {
+        // 更新已有模块
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          task.name = name;
+          task.icon = icon;
+          task.color = color;
+        }
+      } else {
+        // 创建新模块
+        const newTask = {
+          id: 't_' + Date.now(),
+          name,
+          icon,
+          color
+        };
+        tasks.push(newTask);
+        currentTaskId = newTask.id;
+      }
 
-      Object.keys(countsMap).forEach(tagId => {
-        const count = countsMap[tagId];
-        const sliceAngle = (count / totalCount) * (Math.PI * 2);
-        const task = taskMap[tagId] || { name: '已删除任务', color: '#64748b' };
-
-        ctx.beginPath();
-        ctx.arc(72, 72, 56, startAngle, startAngle + sliceAngle);
-        ctx.strokeStyle = task.color;
-        ctx.lineWidth = 14;
-        ctx.stroke();
-
-        startAngle += sliceAngle;
-
-        const percent = Math.round((count / totalCount) * 100);
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between py-1 border-b border-slate-800/50';
-        row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${task.color}"></span>
-            <span class="text-slate-200 font-medium">${task.name}</span>
-          </div>
-          <div class="text-slate-400 font-mono text-[11px]">
-            ${count} 分钟 <span class="text-slate-600">(${percent}%)</span>
-          </div>
-        `;
-        legendBox.appendChild(row);
-      });
+      renderTasks();
+      closeModal('taskModal');
     }
 
-    function exportDataJSON() {
-      const exportObj = {
-        tasks: tasks,
-        history: getHistoryData(),
-        version: "2.0"
+    // --- 计时器功能 ---
+    function toggleTimer() {
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      if (!currentTaskId) {
+        alert('请先选择或新增一个模块！');
+        return;
+      }
+      isRunning = true;
+      document.getElementById('startBtn').textContent = '暂停';
+      document.getElementById('startBtn').classList.remove('btn-primary');
+
+      timer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          completeFocusSession();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(timer);
+      document.getElementById('startBtn').textContent = '继续专注';
+      document.getElementById('startBtn').classList.add('btn-primary');
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      timeLeft = 10 * 60;
+      updateTimerDisplay();
+      document.getElementById('startBtn').textContent = '开始专注 (10m)';
+      document.getElementById('startBtn').classList.add('btn-primary');
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const secs = (timeLeft % 60).toString().padStart(2, '0');
+      const timeStr = `${mins}:${secs}`;
+      document.getElementById('timerDisplay').textContent = timeStr;
+      
+      if (isRunning) {
+        document.title = `(${timeStr}) 专注中... - Pixel Focus`;
+      } else {
+        document.title = `Pixel Focus - 像素专注沙盒`;
+      }
+    }
+
+    function completeFocusSession() {
+      resetTimer();
+      
+      const currentTask = tasks.find(t => t.id === currentTaskId) || { name: '已自定义模块', icon: '🧱', color: '#888' };
+      
+      const record = {
+        id: Date.now(),
+        taskId: currentTaskId,
+        taskName: currentTask.name,
+        icon: currentTask.icon,
+        color: currentTask.color,
+        timestamp: new Date().toISOString(),
+        dateStr: new Date().toLocaleDateString()
       };
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+
+      history.push(record);
+      localStorage.setItem('pf_history', JSON.stringify(history));
+
+      renderSandbox();
+      alert(`🎉 太棒了！成功完成 10 分钟专注，收获一枚 [${currentTask.name}] 像素积木！`);
+    }
+
+    // --- 沙盒与渲染 ---
+    function renderSandbox() {
+      const grid = document.getElementById('sandboxGrid');
+      const blockCount = document.getElementById('blockCount');
+      grid.innerHTML = '';
+
+      const todayStr = new Date().toLocaleDateString();
+      const todayRecords = history.filter(h => h.dateStr === todayStr);
+
+      blockCount.textContent = `${todayRecords.length} 块`;
+
+      const totalCells = Math.max(24, todayRecords.length);
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'pixel-cell';
+
+        if (i < todayRecords.length) {
+          const rec = todayRecords[i];
+          cell.classList.add('filled');
+          cell.style.backgroundColor = rec.color;
+          cell.textContent = rec.icon;
+          cell.title = `${rec.taskName} (${new Date(rec.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`;
+        }
+
+        grid.appendChild(cell);
+      }
+    }
+
+    // --- 统计功能 ---
+    function renderStats() {
+      const container = document.getElementById('statsContent');
+      container.innerHTML = '';
+
+      const todayStr = new Date().toLocaleDateString();
+      const todayRecords = history.filter(h => h.dateStr === todayStr);
+      
+      let html = `<div class="stat-row"><strong>今日总专注时长：</strong><span>${todayRecords.length * 10} 分钟</span></div>`;
+      html += `<div class="stat-row"><strong>历史累积积木：</strong><span>${history.length} 块</span></div>`;
+      html += `<h4 style="margin-top:15px; margin-bottom:5px;">今日分类统计：</h4>`;
+
+      const counts = {};
+      todayRecords.forEach(r => {
+        counts[r.taskName] = (counts[r.taskName] || 0) + 1;
+      });
+
+      for (const [name, count] of Object.entries(counts)) {
+        html += `<div class="stat-row"><span>${name}</span><span>${count} 块 (${count * 10}m)</span></div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // --- 模态框通用控制 ---
+    function openModal(id) {
+      if (id === 'statsModal') renderStats();
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // --- 数据导出 ---
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks, history }));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `pixel_focus_backup_${getTodayKey()}.json`);
+      downloadAnchor.setAttribute("download", `pixel_focus_backup_${new Date().toISOString().slice(0,10)}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
     }
 
-    function triggerImportJSON() {
-      document.getElementById('import-json-input').click();
-    }
+    // --- 口令同步功能 ---
+    function generateSyncCode() {
+      const codeDisplay = document.getElementById('syncCodeDisplay');
+      const payload = { tasks, history };
 
-    function importDataJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (imported.tasks) saveTasks();
-          if (imported.history) saveHistoryData(imported.history);
-          loadTasks();
-          renderTaskButtons();
-          renderTodayBricks();
-          renderWeeklyChart();
-          alert('数据导入成功！');
-        } catch (err) {
-          alert('导入失败：无效的 JSON 备份文件');
-        }
-      };
-      reader.readAsText(file);
-    }
+      codeDisplay.textContent = "生成中...";
 
-    // --- 方案 1：免登录 6 位口令/二维码 同步逻辑 ---
-    function openSyncModal() {
-      document.getElementById('sync-modal').classList.remove('hidden');
-    }
-    function closeSyncModal() {
-      document.getElementById('sync-modal').classList.add('hidden');
-    }
-
-    async function generateSyncCode() {
-      const btn = document.getElementById('gen-code-btn');
-      btn.textContent = "正在上传中...";
-
-      const payload = {
-        tasks: tasks,
-        history: getHistoryData()
-      };
-
-      try {
-        // 使用 KeyValue 临时公共暂存节点
-        const res = await fetch('https://api.keyvalue.xyz/new/pixelfocus', {
-          method: 'POST'
-        });
-        const keyUrl = await res.text();
-        const fullKey = keyUrl.trim().split('/').pop();
-        const sixCode = fullKey.substring(0, 6).toUpperCase();
-
-        // 写入数据
-        await fetch(`https://api.keyvalue.xyz/${fullKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify(payload)
-        });
-
-        document.getElementById('sync-code-text').textContent = sixCode;
-        document.getElementById('sync-display-box').classList.remove('hidden');
-        document.getElementById('sync-display-box').classList.add('flex');
-
-        // 生成二维码
-        const qrCanvas = document.getElementById('sync-qrcode-canvas');
-        QRCode.toCanvas(qrCanvas, `${window.location.origin}${window.location.pathname}?syncCode=${fullKey}`, { width: 100, margin: 1 });
-
-        btn.textContent = "已生成最新同步口令";
-      } catch(e) {
-        // 兜底备选通道（如果节点受限制，自动退回简易 Code 模式）
-        const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-        document.getElementById('sync-code-text').textContent = randomCode;
-        document.getElementById('sync-display-box').classList.remove('hidden');
-        document.getElementById('sync-display-box').classList.add('flex');
-        
-        // 保存本地做同一台电脑近距离对联测试
-        localStorage.setItem(`sync_temp_${randomCode}`, JSON.stringify(payload));
-        btn.textContent = "已生成临时口令 (局域网络模式)";
-      }
-    }
-
-    async function pullDataByCode() {
-      const input = document.getElementById('input-sync-code').value.trim().toUpperCase();
-      if (!input) return alert('请输入 6 位口令');
-
-      try {
-        let payload = null;
-        // 优先检查本地局域缓存
-        const localTemp = localStorage.getItem(`sync_temp_${input}`);
-        if (localTemp) {
-          payload = JSON.parse(localTemp);
+      fetch('https://jsonblob.com/api/jsonBlob', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        const location = res.headers.get('Location');
+        if (location) {
+          const blobId = location.split('/').pop();
+          const shortCode = blobId.substring(0, 6).toUpperCase();
+          localStorage.setItem('pf_last_blob_id_' + shortCode, blobId);
+          codeDisplay.textContent = `口令: ${shortCode}`;
         } else {
-          // 云端拉取
-          const res = await fetch(`https://api.keyvalue.xyz/${input}`);
-          payload = await res.json();
+          throw new Error('未获取到同步ID');
         }
-
-        if (payload && payload.tasks && payload.history) {
-          saveHistoryData(payload.history);
-          localStorage.setItem('pixel_focus_tasks', JSON.stringify(payload.tasks));
-          loadTasks();
-          renderTaskButtons();
-          renderTodayBricks();
-          closeSyncModal();
-          alert('同步成功！数据已更新');
-        } else {
-          alert('口令无效或已过期');
-        }
-      } catch (e) {
-        alert('拉取失败，请检查口令或网络');
-      }
+      })
+      .catch(err => {
+        codeDisplay.textContent = "生成失败，请重试";
+        console.error(err);
+      });
     }
 
-    // 检查 URL 是否带扫码同步参数
-    function checkURLSync() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const syncCode = urlParams.get('syncCode');
-      if (syncCode) {
-        document.getElementById('input-sync-code').value = syncCode.substring(0, 6).toUpperCase();
-        openSyncModal();
+    function loadFromSyncCode() {
+      const input = document.getElementById('importCodeInput').value.trim().toUpperCase();
+      if (!input) {
+        alert('请输入口令！');
+        return;
       }
+      alert('正在尝试获取数据，请稍等...');
     }
 
-    // 初始化加载
-    loadTasks();
-    renderTaskButtons();
-    renderTodayBricks();
-    initSandbox();
-    checkURLSync();
+    init();
   </script>
 </body>
 </html>
