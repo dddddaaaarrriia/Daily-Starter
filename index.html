@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pixel Focus - 极简像素专注沙盒</title>
+  <title>Pixel Focus - 极简像素专注沙盒 (测试版)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <!-- 引入 canvas-confetti 库用于 10 分钟彩带爆破动效 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
@@ -119,12 +118,12 @@
     <header class="flex justify-between items-center pb-4 border-b border-slate-800/80 max-w-4xl mx-auto w-full">
       <div class="flex items-center gap-2.5">
         <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
-        <h1 class="text-sm font-bold tracking-tight text-slate-100">Pixel Focus</h1>
+        <h1 class="text-sm font-bold tracking-tight text-slate-100">Pixel Focus <span class="text-[10px] text-sky-400 font-normal">Test v3.1</span></h1>
       </div>
       <div class="flex items-center gap-2 sm:gap-3">
         <div id="status-text" class="text-xs font-medium text-slate-500 hidden sm:block">准备状态：等待开始</div>
         <button onclick="openSyncModal()" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 text-xs font-medium transition-all border border-slate-700/50 flex items-center gap-1">
-          🔄 极速扫码同步
+          🔄 跨端极速同步
         </button>
         <button onclick="openStatsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 text-xs font-medium transition-all border border-slate-700/50 flex items-center gap-1">
           📊 周统计与备份
@@ -154,9 +153,8 @@
           </button>
         </div>
 
-        <!-- 计时沙盒卡片 (结合全息冲击波环与分级动效容器) -->
+        <!-- 计时沙盒卡片 -->
         <div class="relative w-full flex justify-center items-center">
-          <!-- 全息冲击波环（长时/自由模式触发） -->
           <div id="shockwave" class="shockwave-ring"></div>
 
           <div id="sandbox-card" class="relative p-8 sm:p-10 bg-slate-900/80 border border-slate-800/80 rounded-3xl shadow-2xl backdrop-blur-md flex flex-col items-center w-full transition-all duration-300">
@@ -166,9 +164,7 @@
             </div>
             
             <!-- 像素网格 -->
-            <div id="sandbox-grid" class="grid gap-3.5 my-1 min-h-[140px] items-center justify-center">
-              <!-- JS 动态生成 -->
-            </div>
+            <div id="sandbox-grid" class="grid gap-3.5 my-1 min-h-[140px] items-center justify-center"></div>
 
             <div id="mode-reward-hint" class="text-[11px] text-slate-500 mt-5 font-medium">
               满满 10 分钟结算 1 块积木（触发彩带爆破）
@@ -178,9 +174,7 @@
 
         <!-- 下方控制器 -->
         <div class="flex flex-col sm:flex-row items-center gap-3 bg-slate-900/80 p-2 border border-slate-800/80 rounded-2xl shadow-lg w-full">
-          <div id="tag-container" class="flex flex-wrap gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800/50 flex-grow max-h-24 overflow-y-auto">
-            <!-- JS 动态渲染 -->
-          </div>
+          <div id="tag-container" class="flex flex-wrap gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800/50 flex-grow max-h-24 overflow-y-auto"></div>
 
           <button id="start-btn" onclick="toggleFocus()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tracking-wide hover:bg-emerald-400 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0">
             开启专注
@@ -189,7 +183,7 @@
 
       </main>
 
-      <!-- 右侧今日积蓄池 (触发重力下落回弹堆叠) -->
+      <!-- 右侧今日积蓄池 -->
       <section class="w-full sm:w-44 bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl shadow-lg backdrop-blur-sm shrink-0 h-80 flex flex-col justify-between">
         <div>
           <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800/60">
@@ -216,7 +210,7 @@
 
     <!-- Footer -->
     <footer class="pt-3 border-t border-slate-800/60 text-center text-[11px] text-slate-600 font-medium max-w-4xl mx-auto w-full">
-      把平淡无奇的时间，铸造成彩色的丰盈积蓄
+      Pixel Focus 测试版 —— 纯前端沉浸沙盒
     </footer>
   </div>
 
@@ -288,42 +282,37 @@
             <button onclick="triggerImportJSON()" class="text-[10px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">导入 JSON</button>
             <input type="file" id="import-json-input" class="hidden" accept=".json" onchange="importDataJSON(event)">
           </div>
-          <button onclick="copyBackupToClipboard()" class="text-[10px] px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded border border-sky-500/30">📋 复制文本代码</button>
+          <button onclick="copyBackupToClipboard()" class="text-[10px] px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded border border-sky-500/30">📋 复制全量备份文本</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 弹窗 3：扫码同步 Modal -->
+  <!-- 弹窗 3：跨端极速同步 Modal（已完全重构，剔除无效二维码，换成高可靠口令快照） -->
   <div id="sync-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-4 animate-smooth">
       <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-        <h3 class="text-xs font-bold text-slate-100">零服务器·纯前端扫码同步</h3>
+        <h3 class="text-xs font-bold text-slate-100">跨端极速同步（免扫码高可靠版）</h3>
         <button onclick="closeSyncModal()" class="text-slate-500 hover:text-slate-300 text-xs">✕</button>
       </div>
 
-      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col items-center gap-2">
-        <span class="text-[11px] font-semibold text-slate-400 w-full text-left">📱 从当前设备跨端迁移</span>
-        <button onclick="generateSyncQR()" id="gen-code-btn" class="w-full py-1.5 rounded-lg text-xs bg-sky-500/20 text-sky-400 font-medium hover:bg-sky-500/30 border border-sky-500/30">
-          生成数据迁移二维码
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col gap-2.5">
+        <span class="text-[11px] font-semibold text-slate-400 block">📤 步骤 1：在源设备生成快照口令</span>
+        <button onclick="generateSyncSnapshot()" class="w-full py-2 rounded-lg text-xs bg-sky-500/20 text-sky-300 font-medium hover:bg-sky-500/30 border border-sky-500/30 transition-all">
+          生成并复制同步快照码
         </button>
-        
-        <div id="sync-display-box" class="hidden flex-col items-center gap-2 mt-2">
-          <canvas id="sync-qrcode-canvas" class="rounded-lg border border-slate-800 p-1.5 bg-white"></canvas>
-          <span class="text-[9px] text-slate-400 text-center">手机扫码直接导入当前所有数据</span>
-        </div>
       </div>
 
       <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/60 flex flex-col gap-2">
-        <span class="text-[11px] font-semibold text-slate-400 block">📥 粘贴备份文本恢复</span>
-        <div class="flex gap-2">
-          <input id="input-sync-code" type="text" placeholder="粘贴复制的数据文本" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-100 font-mono focus:outline-none focus:border-sky-500">
-          <button onclick="pullDataByText()" class="px-3 py-1 rounded-lg text-xs bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 shrink-0">恢复</button>
-        </div>
+        <span class="text-[11px] font-semibold text-slate-400 block">📥 步骤 2：在目标设备粘贴并恢复</span>
+        <textarea id="input-sync-code" rows="3" placeholder="在此粘贴另一台设备生成的同步快照码..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-[11px] text-slate-100 font-mono focus:outline-none focus:border-sky-500 resize-none"></textarea>
+        <button onclick="pullDataBySnapshot()" class="w-full py-1.5 rounded-lg text-xs bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 transition-all">
+          确认一键同步（含分类与历史）
+        </button>
       </div>
 
       <div class="text-right pt-1">
-        <button onclick="closeSyncModal()" class="px-3 py-1 rounded-lg text-xs text-slate-400 hover:bg-slate-800">关闭</button>
+        <button onclick="closeSyncModal()" class="px-3 py-1 rounded-lg text-xs text-slate-400 hover:bg-slate-800">关闭窗口</button>
       </div>
     </div>
   </div>
@@ -495,7 +484,7 @@
           const earnedBricks = Math.floor(Math.floor(elapsedSecs / 60) / 10);
           if (earnedBricks > 0) {
             recordTodayBricks(currentTag, earnedBricks);
-            triggerCompletionAnimations(earnedBricks); // 中断时若已累积也给予结算动效
+            triggerCompletionAnimations(earnedBricks);
           }
         }
         isFocusing = false;
@@ -520,8 +509,6 @@
       statusText.className = 'text-xs font-semibold text-emerald-400 hidden sm:block';
 
       recordTodayBricks(currentTag, brickRewardCount);
-
-      // 触发对应时长的精妙结算动效
       triggerCompletionAnimations(brickRewardCount);
 
       initSandbox();
@@ -529,10 +516,8 @@
       startBtn.className = 'w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tracking-wide hover:bg-emerald-400 active:scale-95 transition-all duration-200 shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0';
     }
 
-    /* 根据时长模式分发不同的结算动效 */
     function triggerCompletionAnimations(rewardCount) {
       if (currentMode === '10m') {
-        // 方案 1：10分钟彩带爆破
         const card = document.getElementById('sandbox-card');
         const rect = card.getBoundingClientRect();
         const originX = (rect.left + rect.width / 2) / window.innerWidth;
@@ -545,13 +530,11 @@
           colors: ['#6366f1', '#a855f7', '#ec4899', '#38bdf8', '#fbbf24']
         });
       } else if (currentMode === '25m') {
-        // 方案 2：25分钟赛博霓虹脉冲光晕
         const card = document.getElementById('sandbox-card');
         card.classList.remove('animate-card-pulse');
         void card.offsetWidth;
         card.classList.add('animate-card-pulse');
       } else {
-        // 方案 3：自由模式/长时间专注 -> 全息冲击波 + 能量粒子吸附特效
         const shockwave = document.getElementById('shockwave');
         const gridBox = document.getElementById('sandbox-grid');
         const colors = ['#818cf8', '#c084fc', '#f472b6', '#34d399', '#fbbf24'];
@@ -643,7 +626,6 @@
       bricks.forEach((tagId) => {
         const brick = document.createElement('div');
         const color = taskMap[tagId] || '#38bdf8';
-        /* 触发动效 2：积木重力落盘回弹 animate-drop-bounce */
         brick.className = 'w-3.5 h-3.5 rounded-sm animate-drop-bounce flex-shrink-0';
         brick.style.backgroundColor = color;
         brick.style.boxShadow = `0 0 6px ${color}90`;
@@ -812,7 +794,7 @@
     }
 
     function exportDataJSON() {
-      const backupObj = { version: 'v3', tasks: tasks, history: getHistoryData() };
+      const backupObj = { version: 'v3.1', tasks: tasks, history: getHistoryData() };
       const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -843,30 +825,48 @@
 
     function copyBackupToClipboard() {
       navigator.clipboard.writeText(JSON.stringify({ tasks: tasks, history: getHistoryData() })).then(() => {
-        alert('已复制备份文本到剪贴板！');
+        alert('已成功复制全量备份文本到剪贴板！');
       });
     }
 
     function openSyncModal() { document.getElementById('sync-modal').classList.remove('hidden'); }
     function closeSyncModal() { document.getElementById('sync-modal').classList.add('hidden'); }
 
-    function generateSyncQR() {
-      QRCode.toCanvas(document.getElementById('sync-qrcode-canvas'), JSON.stringify({ tasks: tasks, history: getHistoryData() }), { width: 160, margin: 1 }, function(error) {
-        if (!error) document.getElementById('sync-display-box').classList.remove('hidden');
+    /* 重构后的跨端同步快照逻辑：百分之百稳定，无需依赖外部二维码库 */
+    function generateSyncSnapshot() {
+      const snapshot = JSON.stringify({ version: 'v3.1', tasks: tasks, history: getHistoryData() });
+      navigator.clipboard.writeText(snapshot).then(() => {
+        alert('✅ 同步快照码已成功生成并复制到剪贴板！\n\n请直接将它通过微信发到手机或其他浏览器中，粘贴到下方输入框即可完成跨端恢复。');
+      }).catch(() => {
+        // 兜底：如果剪贴板受权限限制，直接填入文本框手动复制
+        const textarea = document.getElementById('input-sync-code');
+        textarea.value = snapshot;
+        alert('已生成快照代码，请在下方文本框中手动复制。');
       });
     }
 
-    function pullDataByText() {
+    function pullDataBySnapshot() {
       const val = document.getElementById('input-sync-code').value.trim();
-      if (!val) return;
+      if (!val) return alert('请输入或粘贴有效的同步快照码！');
       try {
         const imported = JSON.parse(val);
+        // 校验是否同时包含 tasks 和 history，保证分类与积木记录完美双向同步
         if (imported.tasks && imported.history) {
-          tasks = imported.tasks; saveTasks(); saveHistoryData(imported.history);
-          renderTaskButtons(); renderTodayBricks();
-          alert('同步成功！'); closeSyncModal();
+          tasks = imported.tasks; 
+          saveTasks(); 
+          saveHistoryData(imported.history);
+          
+          renderTaskButtons(); 
+          renderTodayBricks(); 
+          
+          alert('🎉 跨端同步成功！分类模块与积木历史已全部就绪。'); 
+          closeSyncModal();
+        } else {
+          alert('数据格式不匹配，缺少必要的分类或历史记录。');
         }
-      } catch (e) { alert('数据无效'); }
+      } catch (e) {
+        alert('解析失败，请检查同步码是否复制完整。');
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
