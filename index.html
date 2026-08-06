@@ -118,7 +118,7 @@
     <header class="flex justify-between items-center pb-4 border-b border-slate-800/80 max-w-4xl mx-auto w-full">
       <div class="flex items-center gap-2.5">
         <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
-        <h1 class="text-sm font-bold tracking-tight text-slate-100">Pixel Focus <span class="text-[10px] text-sky-400 font-normal">v9.0</span></h1>
+        <h1 class="text-sm font-bold tracking-tight text-slate-100">Pixel Focus</h1>
       </div>
       <div class="flex items-center gap-2 sm:gap-3">
         <div id="status-text" class="text-xs font-medium text-slate-500 hidden sm:block">准备状态：等待开始</div>
@@ -794,7 +794,7 @@
     }
 
     function exportDataJSON() {
-      const backupObj = { version: 'v9.0', tasks: tasks, history: getHistoryData() };
+      const backupObj = { tasks: tasks, history: getHistoryData() };
       const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -833,7 +833,7 @@
     function closeSyncModal() { document.getElementById('sync-modal').classList.add('hidden'); }
 
     function generateSyncSnapshot() {
-      const snapshot = JSON.stringify({ version: 'v9.0', tasks: tasks, history: getHistoryData() });
+      const snapshot = JSON.stringify({ tasks: tasks, history: getHistoryData() });
       navigator.clipboard.writeText(snapshot).then(() => {
         alert('✅ 同步快照码已成功生成并复制到剪贴板！\n\n请直接将它通过微信发到手机或其他浏览器中，粘贴到下方输入框即可完成跨端恢复。');
       }).catch(() => {
